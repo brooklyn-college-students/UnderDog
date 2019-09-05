@@ -60,6 +60,14 @@ Version 1.0
         display: flex;
     }
    
+    html {
+      scroll-behavior: smooth;
+    }
+   
+    #myBtn {
+        display: none;
+    }
+   
     a.skip, a.skip-to-content{
        left:-999px;
        position:absolute;
@@ -187,7 +195,7 @@ Version 1.0
         top: calc(-1vh - 1vw);
     }
 
-    .profile, .dash, .settings
+    .profile, .dash, .settings, .notifications
     {
         text-align: center;
         display: block;
@@ -555,6 +563,13 @@ Version 1.0
         display: block;
         text-align: center;
     }
+   
+    @keyframes blinker {
+        50% {
+              text-shadow: 0 0 8px #FFFF00; /* Make notifications button's text glow */
+              font-weight: bold;
+        }
+    }
 
 } /* Close Media Query */
 
@@ -574,6 +589,24 @@ Version 1.0
        display: flex;
        flex-direction: column;
     }
+   
+    html {
+      scroll-behavior: smooth;
+    }
+   
+    #myBtn {
+       display: none;
+       position: fixed;
+       bottom: 5vw;
+       right: 5vw;
+       z-index: 99;
+       border: solid 0.3vw white;
+       background-color: #7B2240;
+       color: white;
+       padding: 2vw;
+       border-radius: 1vw;
+       font-size: 5vw;
+   }
    
     a.skip{
        left:-999px;
@@ -703,7 +736,7 @@ Version 1.0
        top: -2.5vw;
     }
 
-    .profile, .dash, .settings{
+    .profile, .dash, .settings, .notifications{
        text-align: center;
        display: block;
        font-size: 3vw;
@@ -1066,6 +1099,13 @@ Version 1.0
     form
     {
         margin-bottom: 0;
+    }
+   
+    @keyframes blinker {
+        50% {
+              text-shadow: 0 0 1vw #FFFF00; /* Make notifications button's text glow */
+              font-weight: bold;
+        }
     }
     
 } /*Close the Media Query*/

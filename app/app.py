@@ -3,6 +3,7 @@ import requests
 import json
 import urllib.request
 import webbrowser
+import os.path
 
 # Relative path to reach the templates folder
 app = Flask(__name__, template_folder="templates")
@@ -59,11 +60,11 @@ def login_api():
                     return redirect("/home/")
                 else:
                     return render_template(
-                        "base.html", title="", errLogIn=True, trendPorts=trending
+                        "base.html", errLogIn=True, trendPorts=trending
                     )
             except:
                 return render_template(
-                    "base.html", title="", errLogIn=True, trendPorts=trending
+                    "base.html", errLogIn=True, trendPorts=trending
                 )
         else:
             return redirect('/home/')
@@ -102,6 +103,7 @@ def home():
     # else will show main port
     else:
         posts = requests.get(f"{api}/posts-by-portname/", json={"portname": "Main"}).json()
+    posts['name'] = "all"
     # sort by new is the default
     sort = "new"
     if request.method == "POST":
@@ -117,7 +119,8 @@ def home():
             name="Home",
             user=session["user"],
             trendPorts=trending,
-            port=posts, sort=sort)
+            port=posts, sort=sort, 
+            notifiNum = 1)
     else:
         return render_template(
             "posts.html",
@@ -149,7 +152,7 @@ def portpost(portname):
             name="p/" + portname,
             user=session["user"],
             trendPorts=trending,
-            port=port, sort=sort
+            port=port, sort=sort, notifiNum = 1
         )
     else:
         return render_template(
@@ -180,7 +183,8 @@ def my_posts(username):
             name=username + "'s Post",
             user=session["user"],
             trendPorts=trending,
-            port=port
+            port=port, 
+            notifiNum = 1
         )
         # return port
     else:
@@ -305,7 +309,7 @@ def post():
                     "postSubmitted.html",
                     user=session["user"],
                     name="What Name",
-                    trendPorts=trending, ports=trending, postId=response["posts"][0]["postId"]
+                    trendPorts=trending, ports=trending, postId=response["posts"][0]["postId"], notifiNum = 1
                 )
 
             except:
@@ -313,14 +317,14 @@ def post():
                     "writePost.html",
                     user=session["user"],
                     error="Invalid Post",
-                    trendPorts=trending,
+                    trendPorts=trending, notifiNum = 1
                 )
         # If it's a GET request
         else:
             ports = trending_ports()
             print(ports)
             return render_template(
-                "writePost.html", user=session["user"], trendPorts=trending, ports=ports
+                "writePost.html", user=session["user"], trendPorts=trending, ports=ports, notifiNum = 1
             )
     # If we're not logged in...
     else:
@@ -350,7 +354,7 @@ def subscribedposts():
             name="Your feed",
             user=session["user"],
             trendPorts=trending,
-            port=posts, sort=sort
+            port=posts, sort=sort, notifiNum = 1
         )
     else:
         return redirect("/home/")
@@ -450,7 +454,7 @@ def portindex():
             name="Port Index",
             user=session["user"],
             ports=ports,
-            trendPorts=trending,
+            trendPorts=trending, notifiNum = 1
         )
     else:
         return render_template(
@@ -526,7 +530,7 @@ def post_by_title(postId):
         if(request.method == "GET"):
             # If you click on subscribe(you just joined the port),
             print(comments_and_reps)
-            return render_template('postDetails.html', user = session['user'], name = "Post", post=post, comments= comments_and_reps, trendPorts=trending)
+            return render_template('postDetails.html', user = session['user'], name = "Post", post=post, comments= comments_and_reps, trendPorts=trending, notifiNum = 1)
         ## MEANING WE ARE POSTING A COMMENT
         elif(request.method == "POST"):
             res = request.form
@@ -556,7 +560,7 @@ def post_by_title(postId):
                         f"{api}/comments-by-post/",
                         json={"id": postId}).json()
                     update_vote_for_comment(comments_and_reps)
-                    return render_template('postDetails.html', user = session['user'], name = "Post", post=post, comments = comments_and_reps, commentSubmittedMessage = True, trendPorts=trending)
+                    return render_template('postDetails.html', user = session['user'], name = "Post", post=post, comments = comments_and_reps, commentSubmittedMessage = True, trendPorts=trending, notifiNum = 1)
                 except:
                     return redirect("/home/")
     else:
@@ -631,6 +635,7 @@ def profile():
             user=session["user"],
             viewedUser=viewedUser,
             trendPorts=trending,
+            notifiNum = 1
         )
     else:
         print("Not loggin yet.")
@@ -674,7 +679,8 @@ def update():
                     user=session["user"],
                     accountSettings=True,
                     emailAndPassword=True,
-                    trendPorts=trending
+                    trendPorts=trending, 
+                    notifiNum = 1
                 )
             #get new password, put it into DB
             elif "passwordSetting" in form.keys():
@@ -704,7 +710,8 @@ def update():
                     user=session["user"],
                     accountSettings=True,
                     emailAndPassword=True,
-                    trendPorts=trending
+                    trendPorts=trending, 
+                    notifiNum = 1
                 )
             elif "notifications" in form.keys():
                 print("In Account Settings: Notifications.")
@@ -718,7 +725,8 @@ def update():
                     user=session["user"],
                     notifications=True,
                     accountSettings=True,
-                    trendPorts=trending
+                    trendPorts=trending, 
+                    notifiNum = 1
                 )
             return render_template(
                 "userInfo.html",
@@ -726,7 +734,8 @@ def update():
                 user=session["user"],
                 accountSettings=True,
                 emailAndPassword=True,
-                trendPorts=trending
+                trendPorts=trending, 
+                notifiNum = 1
             )
         else:
             print("In Account Settings: main page.")
@@ -736,7 +745,8 @@ def update():
                 user=session["user"],
                 accountSettings=True,
                 emailAndPassword=True,
-                trendPorts=trending
+                trendPorts=trending, 
+                notifiNum = 1
             )
     else:
         print("Not loggin yet.")
@@ -786,6 +796,7 @@ def dashBoard():
                     user=user,
                     viewedUser=session["user"],
                     trendPorts=trending,
+                    notifiNum = 1
                 )
             #show user's comments
             elif "comments" in form.keys():
@@ -831,6 +842,7 @@ def dashBoard():
                     user=user,
                     viewedUser=session["user"],
                     trendPorts=trending,
+                    notifiNum = 1
                 )
             #show user's saved posts.
             elif "savedPosts" in form.keys():
@@ -858,6 +870,7 @@ def dashBoard():
                     user=user,
                     viewedUser=session["user"],
                     trendPorts=trending,
+                    notifiNum = 1
                 )
             #show user's posts
             elif "myPosts" in form.keys():
@@ -887,7 +900,8 @@ def dashBoard():
                     trendPorts=trending,
                     user=user,
                     dashboard=True,
-                    myPosts=True
+                    myPosts=True,
+                    notifiNum = 1
                 )
         #Default Dashboard
         try:
@@ -922,6 +936,7 @@ def dashBoard():
             name=session["user"]["username"],
             subscrptions=True,
             trendPorts=trending,
+            notifiNum = 1
         )
     else:
         print("Not loggin yet.")
@@ -935,7 +950,7 @@ def ourteam():
     trending = trending_ports()
     if "loggedin" in session:
         return render_template(
-            "genLinks.html", user=session["user"], about=True, trendPorts=trending
+            "genLinks.html", user=session["user"], about=True, trendPorts=trending, notifiNum = 1
         )
     else:
         return render_template("genLinks.html", about=True, trendPorts=trending)
@@ -948,7 +963,7 @@ def contact():
     trending = trending_ports()
     if "loggedin" in session:
         return render_template(
-            "genLinks.html", user=session["user"], contact=True, trendPorts=trending
+            "genLinks.html", user=session["user"], contact=True, trendPorts=trending, notifiNum = 1
         )
     else:
         return render_template("genLinks.html", contact=True, trendPorts=trending)
@@ -961,7 +976,7 @@ def terms():
     trending = trending_ports()
     if "loggedin" in session:
         return render_template(
-            "genLinks.html", user=session["user"], terms=True, trendPorts=trending
+            "genLinks.html", user=session["user"], terms=True, trendPorts=trending, notifiNum = 1
         )
     else:
         return render_template("genLinks.html", terms=True, trendPorts=trending)
@@ -971,13 +986,12 @@ def terms():
 """
 @app.route("/newsfeed/")
 def hello9():
+    user = session["user"]
     trending = trending_ports()
-    return render_template(
-        "posts.html",
-        name="Bla",
-        trendPorts=trending,
-        port="Main"
-    )
+    if 'loggedin' in session:
+        return render_template("posts.html", name="Main - UnderDogs", trendPorts=trending, port="Main", user = user, notifiNum = 1)
+    else:
+        return render_template("posts.html", name="Main - UnderDogs", trendPorts=trending, port="Main")
 
 
 """
@@ -992,10 +1006,9 @@ def forgot():
 
 @app.route("/Regist_Pending/")
 def pending():
-    user = session["user"]
     trending = trending_ports()
     return render_template(
-        "genLinks.html", name=user["first"], user=user, trendPorts=trending
+        "genLinks.html", name = "Registration Pending", user=user, trendPorts=trending
     )
 
 
@@ -1004,9 +1017,62 @@ def pending():
 def search():
     user = session["user"]
     trending = trending_ports()
-    return render_template('_404Error.html', name = "404", trendPorts = trending, user = user)
+    return render_template('_404Error.html', name = "404", trendPorts = trending, user = user, notifiNum = 1)
 
 
+"""
+**** App of the Month Registration Form: ****
+"""
+
+@app.route('/app-of-the-month-register/')
+def appOfTheMonth():
+    if 'loggedin' in session:
+        user = session["user"]
+        trending = trending_ports()
+        return render_template('appOfTheMonthRegister.html', name = "App Registration", trendPorts = trending, user = user, notifiNum = 1)
+    else:
+        return redirect('/home/')
+    
+@app.route('/app-registration-form-submitted/', methods=['GET', 'POST'])
+def appOfTheMonthFormSubmitted ():
+    if 'loggedin' in session and request.method == 'POST':
+        user = session["user"]
+        trending = trending_ports()
+        theForm = request.form # Holds the dictionary of the form. Has 5 keys: 'first', 'last', 'email', 'appname' and 'addimage'.
+        # ---> Back End code to retrieve info from form and process it.
+        return render_template('appSubmitted.html', name = "App Submitted!", trendPorts = trending, user = user, notifiNum = 1)
+    else:
+        return redirect('/home/')
+    
+"""
+**** Notification UI: ****
+"""
+
+@app.route('/notifications/', methods=["POST", "GET"])
+def notificationsFunc ():
+    if 'loggedin' in session:
+        user = session["user"]
+        trending = trending_ports()
+        # Example of what the 'notifications' List shall look like:
+        notifications = [{'author': "markkduke", 
+                          'postId': 171, 
+                          'postTitle': "Shall We Sit in the Pizza, or Take the Restaurant Away?", 
+                          'dateCreated': "2019-08-16 13:45:07", 
+                          'commentText': "No"},
+                         {'author': "mary060196", 
+                          'postId': 229,
+                          'yourCommentsText': "bla\nbla\nbla",
+                          'dateCreated': "2019-08-18 04:39:04",
+                          'commentText': "bla\n\nbla\n\nbla (ENTER hit twice in-between each)"}]
+        # ---> Back End code to retrieve info from form and process it.
+        return render_template('notifications.html', 
+                               name = "Notifications", 
+                               trendPorts = trending, 
+                               user = user, 
+                               notifiNum = 0, 
+                               notifications = notifications)
+    else:
+        return redirect('/home/')
 
 
 '''

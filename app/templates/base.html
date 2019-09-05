@@ -24,7 +24,7 @@
 
 <body {%- block onload %} onload = "displayYear()" {% endblock -%}>
 
-
+<button onclick="topFunction()" id="myBtn" title="Go to top">Go to Top</button>
 
 {%- block leftContainer %}
     <div style="outline:none;" id = "pagetop" class = "leftContainer"> <!-- Beginning of the Left (Logo and Menu) Container -->
@@ -51,6 +51,16 @@
                        {% endif -%}
                         <a href = "/profile/" class = "username" title = "Go to your User Profile" >{{ user['username'] }}</a>
 
+                        <form method = "GET" action = "/notifications/">
+                                 <input type = "submit" 
+                                        {%- if (notifiNum) and (notifiNum > 0) %}
+                                           style = "animation: blinker 1s linear infinite;"
+                                        {%- endif -%}
+                                        name = "loggedIn" 
+                                        class="notifications" 
+                                        value = "Notifications:&nbsp;{%- if (notifiNum) and (notifiNum >= 0) and (notifiNum <= 100) %}{{ notifiNum }}{%- elif (notifiNum) and (notifiNum > 100) %}100+{%- else %}0{%- endif -%}" 
+                                        title = "Go to your Notifications">
+                        </form>
                         <form method = "GET" action = "/profile/">
                                  <input type = "submit" name = "loggedIn" class="profile" value = "User Profile" title = "Go to your User Profile">
                         </form>
@@ -222,13 +232,13 @@
 
         <div class = "theAdYouCantRemoveThis"> <!-- Advertisement Area: an annoying and clickable ad will appear here (it is even more annoying to
                                                                                      realize we are not paid a penny for putting this here!) -->
-            <p>Advertisement</p>
+            <p>App of the Month</p>
             {%- if ad %}{# If argument ad was passed: #} {# |e mean 'do escaping' for security! #}
                   <a href = "{{ ad['adurl']|e }}" title = "{{ ad['adtext'] }}">
                   <div class = "ad" style = "content: url({{ad['imageurl']|e}})"></div></a>
             {%- else %}{# If argument ad was not passed, a demo ad of Brooklyn College is shown: #}
-                  <a href = "http://www.brooklyn.cuny.edu/web/home.php" title = "Go to the Brooklyn College's Website">
-                  <div class = "ad" style = "content: url(https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/2016_Brooklyn_College_Library.jpg/300px-2016_Brooklyn_College_Library.jpg);"></div></a>
+                  <a href = "/app-of-the-month-register/" title = "Learn more about the App of the Month">
+                  <div class = "ad" style = "content: url('../static/img/App-on-UnderDogs-Ad.gif');"></div></a>
             {% endif -%}
         </div>
 
